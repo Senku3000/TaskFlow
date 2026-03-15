@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TaskFlow</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-page">
+        <div class="login-container">
+            <div class="login-header-page">
+                <div class="logo">TF</div>
+                <h2>Task Flow</h2>
+                <p style="margin: 5px 0 30px; color: var(--sub);">Professor Task Manager</p>
+            </div>
+
+            <div class="login-form-container">
+                <div class="login-tabs">
+                    <button id="loginTabBtn" class="tab-btn active">Login</button>
+                    <button id="signupTabBtn" class="tab-btn">Sign Up</button>
+                </div>
+
+                <!-- Login Form -->
+                <div id="loginForm" class="auth-form">
+                    <div class="modal-row">
+                        <label>Professor ID</label>
+                        <input id="prof_id" class="input" placeholder="e.g., prof001" required />
+                    </div>
+                    <div class="modal-row">
+                        <label>Password</label>
+                        <input id="prof_password" type="password" class="input" placeholder="Enter password" required />
+                    </div>
+                    <button type="button" id="loginBtn" class="btn primary"
+                        style="width: 100%; margin-top: 10px;">Login</button>
+                </div>
+
+                <!-- Signup Form -->
+                <div id="signupForm" class="auth-form" style="display: none;">
+                    <div class="modal-row">
+                        <label>Professor ID</label>
+                        <input id="signup_prof_id" class="input" placeholder="e.g., prof004" required />
+                    </div>
+                    <div class="modal-row">
+                        <label>Full Name</label>
+                        <input id="signup_name" class="input" placeholder="e.g., Dr. Anderson" required />
+                    </div>
+                    <div class="modal-row">
+                        <label>Password</label>
+                        <input id="signup_password" type="password" class="input" placeholder="Choose a password"
+                            required />
+                    </div>
+                    <div class="modal-row">
+                        <label>Confirm Password</label>
+                        <input id="signup_confirm_password" type="password" class="input"
+                            placeholder="Confirm your password" required />
+                    </div>
+                    <button type="button" id="createAccountBtn" class="btn primary"
+                        style="width: 100%; margin-top: 10px;">Create Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div class="container" style="display: none;">
+        <div class="topbar">
+            <div class="brand">
+                <div class="logo">TF</div>
+                <div>
+                    <div style="font-weight:800">Task Flow</div>
+                    <div style="font-size:12px;color:var(--sub)">Professor Task Manger</div>
+                </div>
+                <button id="analyticsBtn" class="btn">📊 Student Analytics</button>
+            </div>
+            <div class="actions">
+                <select id="classSelector" class="input" style="width: 200px;">
+                    <option value="">Select Class</option>
+                </select>
+                <button id="addClassBtn" class="btn">+ Add Class</button>
+                <button id="addTask" class="btn primary">+ New Task</button>
+                <button id="uploadSyllabusBtn" class="btn">📚 Upload Syllabus</button>
+                <input id="syllabusFile" type="file" accept=".pdf" style="display:none" />
+                <button id="exportBtn" class="btn">⬇️ Export</button>
+                <button id="importBtn" class="btn">⬆️ Import</button>
+                <input id="importFile" type="file" accept="application/json,.json" style="display:none" />
+                <input id="search" class="input" placeholder="Search tasks..." />
+                <div class="prof-info" id="profInfo" style="display:none;">
+                    <span id="profName"></span>
+                    <button id="logoutBtn" class="btn">Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="board" id="board"></div>
+
+        <footer>Tip: Drag cards between columns. Click a card to edit. Data is saved to your browser (localStorage).
+        </footer>
+    </div>
+
+    <!-- Student Analytics Full Page View -->
+    <div id="analyticsPage" class="analytics-page" style="display: none;">
+        <div class="analytics-header">
+            <div>
+                <h2>📊 Student Analytics</h2>
+                <p id="analyticsTotal">Loading...</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button id="addStudentBtn" class="btn primary">+ Add Student</button>
+                <button id="backToBoardBtn" class="btn">← Back to Board</button>
+            </div>
+        </div>
+        <div class="analytics-content">
+            <div style="overflow-x: auto; width: 100%;">
+                <table id="analyticsTable" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border);">
+                            <th style="padding: 12px; text-align: left; color: var(--sub);">Roll No.</th>
+                            <th style="padding: 12px; text-align: left; color: var(--sub);">Student Name</th>
+                            <th style="padding: 12px; text-align: center; color: var(--sub);">CIA 1</th>
+                            <th style="padding: 12px; text-align: center; color: var(--sub);">CIA 2</th>
+                            <th style="padding: 12px; text-align: center; color: var(--sub);">CIA 3</th>
+                            <th style="padding: 12px; text-align: center; color: var(--sub);">Predicted Grade</th>
+                            <th style="padding: 12px; text-align: center; color: var(--sub);">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analyticsTableBody">
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 20px;">Loading...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <!-- Task Modal -->
+    <dialog id="taskModal">
+        <form method="dialog" novalidate>
+            <div class="modal-body">
+                <div class="modal-row">
+                    <label>Title</label>
+                    <input id="m_title" class="input" placeholder="e.g., Set up project repo" required />
+                </div>
+                <div class="modal-row">
+                    <label>Description</label>
+                    <textarea id="m_desc" placeholder="Details, acceptance criteria, links..."></textarea>
+                </div>
+                <div class="modal-row" style="grid-template-columns:1fr 1fr;gap:10px">
+                    <div>
+                        <label>Priority</label>
+                        <select id="m_priority">
+                            <option value="low">Low</option>
+                            <option value="med" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Due</label>
+                        <input id="m_due" type="date" class="input" />
+                    </div>
+                </div>
+                <div class="modal-row">
+                    <label>Label</label>
+                    <input id="m_label" class="input" placeholder="feature, bug, docs" />
+                </div>
+                <div class="modal-row">
+                    <label>Status (column)</label>
+                    <select id="m_status"></select>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="deleteBtn" class="btn"
+                    style="border-color:var(--red);color:#fecaca">Delete</button>
+                <div style="flex:1"></div>
+                <button type="button" id="cancelBtn" class="btn">Cancel</button>
+                <button id="saveBtn" class="btn primary" value="default">Save</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- Student Modal -->
+    <dialog id="studentModal">
+        <form method="dialog" novalidate>
+            <div class="modal-body">
+                <div class="modal-row">
+                    <label>Name</label>
+                    <input id="s_name" class="input" placeholder="Student Name" required />
+                </div>
+                <div class="modal-row">
+                    <label>Roll No.</label>
+                    <input id="s_roll_no" class="input" placeholder="Auto-generated if empty" />
+                </div>
+                <div class="modal-row" style="grid-template-columns:1fr 1fr 1fr;gap:10px">
+                    <div>
+                        <label>CIA 1</label>
+                        <input id="s_cia1" type="number" min="0" max="100" class="input" placeholder="0-100" required />
+                    </div>
+                    <div>
+                        <label>CIA 2</label>
+                        <input id="s_cia2" type="number" min="0" max="100" class="input" placeholder="0-100"
+                            required />
+                    </div>
+                    <div>
+                        <label>CIA 3</label>
+                        <input id="s_cia3" type="number" min="0" max="100" class="input" placeholder="0-100"
+                            required />
+                    </div>
+                </div>
+                <div class="modal-row">
+                    <div>
+                        <label>Phone</label>
+                        <input id="s_phone" type="tel" class="input" placeholder="Optional" />
+                    </div>
+                </div>
+                <div class="modal-row">
+                    <label>Comment</label>
+                    <textarea id="s_comment" placeholder="Performance feedback..."></textarea>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="deleteStudentBtn" class="btn"
+                    style="border-color:var(--red);color:#fecaca;display:none">Delete</button>
+                <div style="flex:1"></div>
+                <button type="button" id="cancelStudentBtn" class="btn">Cancel</button>
+                <button id="saveStudentBtn" class="btn primary" value="default">Save</button>
+            </div>
+        </form>
+    </dialog>
+
+    <!-- Add Class Modal -->
+    <dialog id="addClassModal">
+        <h3>Add New Class</h3>
+        <div class="modal-body">
+            <div class="modal-row">
+                <label>Class Name</label>
+                <input id="newClassName" class="input" placeholder="e.g., CS301 - Machine Learning" required />
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button type="button" id="cancelClassBtn" class="btn">Cancel</button>
+            <button id="saveClassBtn" class="btn primary">Create Class</button>
+        </div>
+    </dialog>
+
+    <script src="/app.js?v=2"></script>
+</body>
+
+</html>
+
